@@ -79,33 +79,31 @@ data.CurrentTime = data.EndTime - seconds(10);
 % Set the colormap
 colormap(player.Axes, colorLabels)
 
-%% POINTS GROUPING - CAR
-ptCloudObj= readFrame(data);
-points = struct();
-points.EgoPoints = helperSegmentEgoFromLidarData(ptCloudObj, vehicleDims, mountLocation);
+% while(hasFrame(data) && player.isOpen() && (data.CurrentTime < data.CurrentTime + seconds(10)))
 
-% view(player,ptCloudObj.Location);
-% rendering "car"
-closePlayer = false;
-helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
+    %% POINTS GROUPING - CAR
+    ptCloudObj= readFrame(data);
+    points = struct();
+    points.EgoPoints = helperSegmentEgoFromLidarData(ptCloudObj, vehicleDims, mountLocation);
+    % rendering "car"
+    closePlayer = false;
 
-%% POINTS GROUPING - GROUND
-elevationDelta = 5;
-points.GroundPoints = segmentGroundFromLidarData(ptCloudObj, 'ElevationAngleDelta', elevationDelta);
+    %% POINTS GROUPING - GROUND
+    elevationDelta = 5;
+    points.GroundPoints = segmentGroundFromLidarData(ptCloudObj, 'ElevationAngleDelta', elevationDelta);
 
-% Visualize the segmented ground plane.
-helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
+    %% POINTS GROUPING - OBSTACLES
+    nonEgoGroundPoints = ~points.EgoPoints & ~points.GroundPoints;
+    ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
 
-%% POINTS GROUPING - OBSTACLES
-nonEgoGroundPoints = ~points.EgoPoints & ~points.GroundPoints;
-ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
+    sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
+    % TODO: change radius
+    radius          = 3; % meters
 
-sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
-% TODO: change radius
-radius          = 3; % meters
+    points.ObstaclePoints = findNeighborsInRadius(ptCloudSegmented, ...
+        sensorLocation, radius);
 
-points.ObstaclePoints = findNeighborsInRadius(ptCloudSegmented, ...
-    sensorLocation, radius);
-
-% Visualize the segmented obstacles
-helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
+    % Visualize the segmented obstacles
+    helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
+%     pause(0.1);
+% end
