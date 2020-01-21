@@ -1,7 +1,7 @@
 %% DATA LOADING
 dataMainDir = './';
-configID = '1';
-fullFolderPath = fullfile(dataMainDir,sprintf('/Config%s',configID));
+configID = '2';
+fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
@@ -33,7 +33,10 @@ colors.Obstacle  = 4;
 %% VEHICLE CREATION
 % TODO:
 % MUST CHANGE WITH VEHICLE DIMENSIONS (length, width, height)
-vehicleDims = vehicleDimensions(); % Typical vehicle 4.7m by 1.8m by 1.4m
+length = 1.5;
+width = 2.2;
+height = 1;
+vehicleDims = vehicleDimensions(length, width, height); % Typical vehicle 4.7m by 1.8m by 1.4m
 
 % lidar's position relative to the vehicle
 mountLocation = [...
@@ -42,11 +45,19 @@ mountLocation = [...
     vehicleDims.Height];                                 % z
 
 %% PLAYER
+%room
+% xlimits = [-5 3];
+% ylimits = [-4 5];
+% zlimits = [-2 2];
+
+%object
 % xlimits = [-0.5 0];
 % ylimits = [0.65 1];
 % zlimits = [-0.2 0.2];
-xlimits = [-5 3];
-ylimits = [-2.6 4];
+
+%room no walls
+xlimits = [-4.3 1.8];
+ylimits = [-2.5 3.3];
 zlimits = [-2 2];
 
 
@@ -79,7 +90,7 @@ closePlayer = false;
 helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
 
 %% POINTS GROUPING - GROUND
-elevationDelta = 10;
+elevationDelta = 5;
 points.GroundPoints = segmentGroundFromLidarData(ptCloudObj, 'ElevationAngleDelta', elevationDelta);
 
 % Visualize the segmented ground plane.
@@ -91,7 +102,7 @@ ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
 
 sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
 % TODO: change radius
-radius          = 2; % meters
+radius          = 3; % meters
 
 points.ObstaclePoints = findNeighborsInRadius(ptCloudSegmented, ...
     sensorLocation, radius);

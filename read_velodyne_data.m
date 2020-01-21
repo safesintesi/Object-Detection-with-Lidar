@@ -4,7 +4,7 @@ clear
 %% data loading
 dataMainDir = './';
 configID = '2';
-fullFolderPath = fullfile(dataMainDir,sprintf('/Config%s',configID));
+fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
