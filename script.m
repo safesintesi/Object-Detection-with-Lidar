@@ -43,6 +43,7 @@ mountLocation = [...
     vehicleDims.Length/2 - vehicleDims.RearOverhang, ... % x
     0, ...                                               % y
     vehicleDims.Height];                                 % z
+sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
 
 %% PLAYER
 %room
@@ -85,7 +86,6 @@ colormap(player.Axes, colorLabels)
     ptCloudObj= readFrame(data);
     points = struct();
     points.EgoPoints = helperSegmentEgoFromLidarData(ptCloudObj, vehicleDims, mountLocation);
-    % rendering "car"
     closePlayer = false;
 
     %% POINTS GROUPING - GROUND
@@ -94,16 +94,55 @@ colormap(player.Axes, colorLabels)
 
     %% POINTS GROUPING - OBSTACLES
     nonEgoGroundPoints = ~points.EgoPoints & ~points.GroundPoints;
+%     nonEgoGroundPoints = ~points.GroundPoints;
     ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
 
-    sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
     % TODO: change radius
-    radius          = 3; % meters
+    radius          = 1.5; % meters
 
     points.ObstaclePoints = findNeighborsInRadius(ptCloudSegmented, ...
         sensorLocation, radius);
-
+    
+    %% CLASS TRY
+    boxes = getBoundingBoxes(ptCloudSegmented, 1.6, 2, 3, -3)
+    
+    %% VISUALIZZAZIONE
     % Visualize the segmented obstacles
     helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
 %     pause(0.1);
 % end
+
+function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDistance,minZDistance)
+    % This method fits bounding boxes on each cluster with some basic
+    % rules.
+    % Cluster must have atleast minDetsPerCluster points.
+    % Its mean z must be between maxZDistance and minZDistance.
+    % length, width and height are calculated using min and max from each
+    % dimension.
+    [labels,numClusters] = pcsegdist(ptCloud,minDistance);
+    pointData = ptCloud.Location;
+    bboxes = nan(6,numClusters,'like',pointData);
+    isValidCluster = false(1,numClusters);
+    for i = 1:numClusters
+        thisPointData = pointData(labels == i,:)
+        meanPoint = mean(thisPointData,1);
+        if size(thisPointData,1) > minDetsPerCluster && ...
+                meanPoint(3) < maxZDistance && meanPoint(3) > minZDistance
+            xMin = min(thisPointData(:,1));
+            xMax = max(thisPointData(:,1));
+            yMin = min(thisPointData(:,2));
+            yMax = max(thisPointData(:,2));
+            zMin = min(thisPointData(:,3));
+            zMax = max(thisPointData(:,3));
+            l = (xMax - xMin);
+            w = (yMax - yMin);
+            h = (zMax - zMin);
+            x = (xMin + xMax)/2;
+            y = (yMin + yMax)/2;
+            z = (zMin + zMax)/2;
+            bboxes(:,i) = [x y z l w h]';
+            isValidCluster(i) = l < 20; % max length of 20 meters
+        end
+    end
+    bboxes = bboxes(:,isValidCluster);
+end
