@@ -1,6 +1,7 @@
+clear all;
 %% DATA LOADING
 dataMainDir = './';
-configID = '2';
+configID = '1';
 fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
@@ -102,12 +103,23 @@ colormap(player.Axes, colorLabels)
 
     points.ObstaclePoints = findNeighborsInRadius(ptCloudSegmented, ...
         sensorLocation, radius);
-    
+
+
     %% CLASS TRY
-    boxes = getBoundingBoxes(ptCloudSegmented, 1.6, 2, 3, -3)
+
+    boxes = getBoundingBoxes(ptCloudSegmented, 0.5, 2, 2.5, -1)
     
     %% VISUALIZZAZIONE
     % Visualize the segmented obstacles
+    [a,b,c]=size(ptCloudObj.Location);
+    prova=ptCloudObj.Location;
+    for x = 1:a
+        for y = 2:b
+            for z = 1:c
+                prova(x,y,z)=0;
+            end
+        end
+    end
     helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
 %     pause(0.1);
 % end
@@ -124,16 +136,37 @@ function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDis
     bboxes = nan(6,numClusters,'like',pointData);
     isValidCluster = false(1,numClusters);
     for i = 1:numClusters
-        thisPointData = pointData(labels == i,:)
-        meanPoint = mean(thisPointData,1);
-        if size(thisPointData,1) > minDetsPerCluster && ...
-                meanPoint(3) < maxZDistance && meanPoint(3) > minZDistance
-            xMin = min(thisPointData(:,1));
-            xMax = max(thisPointData(:,1));
-            yMin = min(thisPointData(:,2));
-            yMax = max(thisPointData(:,2));
-            zMin = min(thisPointData(:,3));
-            zMax = max(thisPointData(:,3));
+        %dimensioni della matrice di partenza
+        [a,b,~]=size(pointData);
+        t=0;
+        %inizializzo le tre matrici di appoggio
+        thisX=nan(a,b);
+        thisY=nan(a,b);
+        thisZ=nan(a,b);
+        %popolo le matrici di appoggio con i dati dell'i-esimo cluster
+        for x=1:a
+           for y=1:b
+               if labels(x,y)==i
+               thisX(x,y)=pointData(x,y,1);     %matrice delle x dei punti del cluster 
+               thisY(x,y)=pointData(x,y,2);     %matrice delle y dei punti del cluster
+               thisZ(x,y)=pointData(x,y,3);     %matrice delle z dei punti del cluster
+               t=t+1;                           %numero punti del cluster
+               else
+                   thisX(x,y)=nan;
+                   thisY(x,y)=nan;
+                   thisZ(x,y)=nan;
+               end
+           end
+        end        
+        meanPoint = max(max(thisZ))-min(min(thisZ));
+        if t > minDetsPerCluster && ...
+                meanPoint < maxZDistance && meanPoint > minZDistance
+            xMin = min(min(thisX));
+            xMax = max(max(thisX));
+            yMin = min(min(thisY));
+            yMax = max(max(thisY));
+            zMin = min(min(thisZ));
+            zMax = max(max(thisZ));
             l = (xMax - xMin);
             w = (yMax - yMin);
             h = (zMax - zMin);
@@ -146,3 +179,4 @@ function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDis
     end
     bboxes = bboxes(:,isValidCluster);
 end
+

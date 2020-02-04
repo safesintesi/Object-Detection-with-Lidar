@@ -17,7 +17,7 @@ egoZLimits = [egoZMin, egoZMax];
 % Transform to lidar coordinates
 egoXLimits = egoXLimits - mountLocation(1);
 egoYLimits = egoYLimits - mountLocation(2);
-egoZLimits = egoZLimits - mountLocation(3) + bufferZone(3)
+egoZLimits = egoZLimits - mountLocation(3) + bufferZone(3);
 
 % Use logical indexing to select points inside ego vehicle cube
 egoPoints = ptCloud.Location(:,:,1) > egoXLimits(1) ...
