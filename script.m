@@ -2,7 +2,7 @@ clear all;
 %% DATA LOADING
 dataMainDir = './';
 configID = '1';
-fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
+fullFolderPath = fullfile(dataMainDir,sprintf('/Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
@@ -82,10 +82,17 @@ data.CurrentTime = data.EndTime - seconds(10);
 colormap(player.Axes, colorLabels)
 
 % while(hasFrame(data) && player.isOpen() && (data.CurrentTime < data.CurrentTime + seconds(10)))
-
-    %% POINTS GROUPING - CAR
-    ptCloudObj= readFrame(data);
+    %% POINT CLOUD CRATION
+    ptCloudTemp = readFrame(data);
     points = struct();
+    
+    % TODO: change radius
+    radius          = 1.5; % meters
+    nearbyPoints = findNeighborsInRadius(ptCloudTemp, ...
+        sensorLocation, radius);                                            %cerco i punti vicini
+    ptCloudObj = select(ptCloudTemp, nearbyPoints , 'OutputSize', 'full');  %restringo area ricerca per qualsiasi cosa
+    
+    %% POINTS GROUPING - CAR
     points.EgoPoints = helperSegmentEgoFromLidarData(ptCloudObj, vehicleDims, mountLocation);
     closePlayer = false;
 
@@ -98,8 +105,7 @@ colormap(player.Axes, colorLabels)
 %     nonEgoGroundPoints = ~points.GroundPoints;
     ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
 
-    % TODO: change radius
-    radius          = 1.5; % meters
+    
 
     points.ObstaclePoints = findNeighborsInRadius(ptCloudSegmented, ...
         sensorLocation, radius);
@@ -120,7 +126,8 @@ colormap(player.Axes, colorLabels)
             end
         end
     end
-    helperUpdateView(player, ptCloudObj, points, colors, closePlayer);
+    %TODO: Render boxes
+    helperUpdateView(player, ptCloudTemp, points, colors, closePlayer);
 %     pause(0.1);
 % end
 
