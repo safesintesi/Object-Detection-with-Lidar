@@ -1,8 +1,9 @@
-clear all;
+clear vars;
+close all;
 %% DATA LOADING
 dataMainDir = './';
-configID = '1';
-fullFolderPath = fullfile(dataMainDir,sprintf('/Config%s',configID));
+configID = '2';
+fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
@@ -87,7 +88,7 @@ colormap(player.Axes, colorLabels)
     points = struct();
     
     % TODO: change radius
-    radius          = 1.5; % meters
+    radius          = 2; % meters
     nearbyPoints = findNeighborsInRadius(ptCloudTemp, ...
         sensorLocation, radius);                                            %cerco i punti vicini
     ptCloudObj = select(ptCloudTemp, nearbyPoints , 'OutputSize', 'full');  %restringo area ricerca per qualsiasi cosa
@@ -102,7 +103,7 @@ colormap(player.Axes, colorLabels)
 
     %% POINTS GROUPING - OBSTACLES
     nonEgoGroundPoints = ~points.EgoPoints & ~points.GroundPoints;
-%     nonEgoGroundPoints = ~points.GroundPoints;
+%    nonEgoGroundPoints = ~points.GroundPoints;
     ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
 
     
@@ -113,7 +114,7 @@ colormap(player.Axes, colorLabels)
 
     %% CLASS TRY
 
-    boxes = getBoundingBoxes(ptCloudSegmented, 0.5, 2, 2.5, -1)
+    boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 0.5, -0.5);
     
     %% VISUALIZZAZIONE
     % Visualize the segmented obstacles
@@ -127,7 +128,78 @@ colormap(player.Axes, colorLabels)
         end
     end
     %TODO: Render boxes
+
     helperUpdateView(player, ptCloudTemp, points, colors, closePlayer);
+
+p=ptCloudTemp.Location;
+x=p(:,:,1);
+y=p(:,:,2);
+z=p(:,:,3);
+[a,b]=size(x);
+for i=1:a
+    for j=1:b
+        if y(i,j)>3.3 || y(i,j)<-2.5 || x(i,j)<-4.3 || x(i,j)>1.8
+            x(i,j)=nan;
+            y(i,j)=nan;
+            z(i,j)=nan;
+        end
+    end
+end
+plot3(x,y,z,'.','Markersize',1,'Color','[0 0.4470 0.7410]');
+[s1,s2]=size(boxes);
+hold on;
+for k=1:s2
+x1=[boxes(1,k),boxes(1,k)];
+y1=[boxes(2,k),boxes(2,k)];
+z1=[boxes(3,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(1,k),boxes(1,k)];
+y1=[boxes(5,k),boxes(5,k)];
+z1=[boxes(3,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(4,k),boxes(4,k)];
+y1=[boxes(2,k),boxes(2,k)];
+z1=[boxes(3,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(4,k),boxes(4,k)];
+y1=[boxes(5,k),boxes(5,k)];
+z1=[boxes(3,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+
+x1=[boxes(1,k),boxes(4,k)];
+y1=[boxes(2,k),boxes(2,k)];
+z1=[boxes(3,k),boxes(3,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(1,k),boxes(4,k)];
+y1=[boxes(2,k),boxes(2,k)];
+z1=[boxes(6,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(1,k),boxes(4,k)];
+y1=[boxes(5,k),boxes(5,k)];
+z1=[boxes(3,k),boxes(3,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(1,k),boxes(4,k)];
+y1=[boxes(5,k),boxes(5,k)];
+z1=[boxes(6,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+
+x1=[boxes(1,k),boxes(1,k)];
+y1=[boxes(2,k),boxes(5,k)];
+z1=[boxes(3,k),boxes(3,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(1,k),boxes(1,k)];
+y1=[boxes(2,k),boxes(5,k)];
+z1=[boxes(6,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(4,k),boxes(4,k)];
+y1=[boxes(2,k),boxes(5,k)];
+z1=[boxes(3,k),boxes(3,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+x1=[boxes(4,k),boxes(4,k)];
+y1=[boxes(2,k),boxes(5,k)];
+z1=[boxes(6,k),boxes(6,k)];
+plot3(x1,y1,z1,'Color','[0.6350 0.0780 0.1840]');
+end
 %     pause(0.1);
 % end
 
@@ -174,13 +246,13 @@ function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDis
             yMax = max(max(thisY));
             zMin = min(min(thisZ));
             zMax = max(max(thisZ));
-            l = (xMax - xMin);
-            w = (yMax - yMin);
-            h = (zMax - zMin);
-            x = (xMin + xMax)/2;
-            y = (yMin + yMax)/2;
-            z = (zMin + zMax)/2;
-            bboxes(:,i) = [x y z l w h]';
+             l = (xMax - xMin);
+%             w = (yMax - yMin);
+%             h = (zMax - zMin);
+%             x = (xMin + xMax)/2;
+%             y = (yMin + yMax)/2;
+%             z = (zMin + zMax)/2;
+            bboxes(:,i) = [xMin yMin zMin xMax yMax zMax]';
             isValidCluster(i) = l < 20; % max length of 20 meters
         end
     end
