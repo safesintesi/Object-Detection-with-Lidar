@@ -1,6 +1,6 @@
 function egoPoints = helperSegmentEgoFromLidarData(ptCloud, vehicleDims, mountLocation)
 % Buffer around ego vehicle
-bufferZone = [0.01, 0.01, -0.12]; % in meters
+bufferZone = [0.01, 0.01, 0.01]; % in meters
 
 % Define ego vehicle limits in vehicle coordinates
 egoXMin = -vehicleDims.RearOverhang - bufferZone(1);
@@ -17,7 +17,7 @@ egoZLimits = [egoZMin, egoZMax];
 % Transform to lidar coordinates
 egoXLimits = egoXLimits - mountLocation(1);
 egoYLimits = egoYLimits - mountLocation(2);
-egoZLimits = egoZLimits - mountLocation(3) + bufferZone(3);
+egoZLimits = egoZLimits - mountLocation(3) -0.12;                           %correzione ad hoc perche' il lidar era stato montato in una posizione infelice
 
 % Use logical indexing to select points inside ego vehicle cube
 egoPoints = ptCloud.Location(:,:,1) > egoXLimits(1) ...
