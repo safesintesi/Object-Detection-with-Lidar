@@ -2,8 +2,8 @@ clear vars;
 close all;
 %% DATA LOADING
 dataMainDir = './';
-configID = '1';
-fullFolderPath = fullfile(dataMainDir,sprintf('./Config%s',configID));
+configID = '2';
+fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
@@ -115,6 +115,7 @@ colormap(player.Axes, colorLabels)
     %% CLASS TRY
 
     boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 0.5, -0.5);
+    boxes2 = getBoundingBoxes2(ptCloudSegmented, 20);
     
     %% VISUALIZZAZIONE
     % Visualize the segmented obstacles
@@ -151,15 +152,28 @@ colormap(player.Axes, colorLabels)
     hold on;
 
     %plotting boxes
-    for k=1:s2
-        X = [boxes(1,k),boxes(4,k),boxes(4,k),boxes(1,k),boxes(1,k)];
-        Y = [boxes(2,k),boxes(2,k),boxes(5,k),boxes(5,k),boxes(2,k)];
-        Z1 = [boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k)];
-        Z2 = [boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k)];
+%     for k=1:s2
+%         X = [boxes(1,k),boxes(4,k),boxes(4,k),boxes(1,k),boxes(1,k)];
+%         Y = [boxes(2,k),boxes(2,k),boxes(5,k),boxes(5,k),boxes(2,k)];
+%         Z1 = [boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k)];
+%         Z2 = [boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k)];
+%         plot3(X,Y,Z1,'Color','[0.6350 0.0780 0.1840]');
+%         plot3(X,Y,Z2,'Color','[0.6350 0.0780 0.1840]');
+%         plot3([X(1:4);X(1:4)],[Y(1:4);Y(1:4)],[Z1(1);Z2(1)],'Color','[0.6350 0.0780 0.1840]');
+% 
+%     end
+
+    [b1,b2]=size(boxes2);
+    for k=1:b2
+        X = [boxes2(1,k),boxes2(4,k),boxes2(4,k),boxes2(1,k),boxes2(1,k)];
+        Y = [boxes2(2,k),boxes2(2,k),boxes2(5,k),boxes2(5,k),boxes2(2,k)];
+        Z1 = [boxes2(3,k),boxes2(3,k),boxes2(3,k),boxes2(3,k),boxes2(3,k)];
+        Z2 = [boxes2(6,k),boxes2(6,k),boxes2(6,k),boxes2(6,k),boxes2(6,k)];
         plot3(X,Y,Z1,'Color','[0.6350 0.0780 0.1840]');
         plot3(X,Y,Z2,'Color','[0.6350 0.0780 0.1840]');
         plot3([X(1:4);X(1:4)],[Y(1:4);Y(1:4)],[Z1(1);Z2(1)],'Color','[0.6350 0.0780 0.1840]');
 
     end
+
 %     pause(0.1);
 % end
