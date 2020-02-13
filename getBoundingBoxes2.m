@@ -11,8 +11,6 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
     end
     data=zeros(punti,3);
     punti=1;
-    i=0;
-    j=0;
     for i=1:p1
        for j=1:p2
           if ~isnan(prova(i,j,1))
@@ -23,6 +21,7 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
           end
        end
     end
+    size(data)
     numClusters=20;
     [labels] = kmeans(data,numClusters);
     bboxes2 = nan(6,numClusters);

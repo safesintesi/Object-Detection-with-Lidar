@@ -94,7 +94,8 @@ colormap(player.Axes, colorLabels)
     ptCloudObj = select(ptCloudTemp, nearbyPoints , 'OutputSize', 'full');  %restringo area ricerca per qualsiasi cosa
     
     %% POINTS GROUPING - CAR
-    points.EgoPoints = helperSegmentEgoFromLidarData(ptCloudObj, vehicleDims, mountLocation);
+    zlidar=0.12;                                                            %posizione relativa del lidar rispetto alla scrivania
+    points.EgoPoints = helperSegmentEgoFromLidarData(ptCloudObj, vehicleDims, mountLocation,zlidar);
     closePlayer = false;
 
     %% POINTS GROUPING - GROUND
@@ -113,10 +114,11 @@ colormap(player.Axes, colorLabels)
 
 
     %% CLASS TRY
-
+    tic
     boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 0.5, -0.5);
+    toc
     boxes2 = getBoundingBoxes2(ptCloudSegmented, 20);
-    
+    toc
     %% VISUALIZZAZIONE
     % Visualize the segmented obstacles
 %     [a,b,c]=size(ptCloudObj.Location);
