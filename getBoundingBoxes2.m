@@ -1,7 +1,9 @@
 function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
+    %estraggo la matrice Location dall'oggetto in input
     prova=ptCloud.Location;
     [p1,p2,~]=size(prova);
     punti=0;
+    %calcolo quanti punti ho per escludere tutti i NaN
     for i=1:p1
        for j=1:p2
           if ~isnan(prova(i,j,1))
@@ -11,6 +13,9 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
     end
     data=zeros(punti,3);
     punti=1;
+    %creo un oggetto che contiene solo i punti diversi da NaN
+    %l'oggetto è una matrice NumPunti*3 dove le tre colonne corrispondono
+    %alle x,y,z del singolo punto.
     for i=1:p1
        for j=1:p2
           if ~isnan(prova(i,j,1))
@@ -21,9 +26,14 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
           end
        end
     end
-    size(data)
     numClusters=20;
+    %applico kmeans all'oggetto appena creato e mi restituisce una colonna
+    %con i labels per i cluster
     [labels] = kmeans(data,numClusters);
+    
+    %stessa procedura dell'altra funzione per il calcolo dei massimi e
+    %minimi delle tre componenti con il return dei cluster
+    %trovati
     bboxes2 = nan(6,numClusters);
     isValidCluster = false(1,numClusters);
     punti=punti-1;

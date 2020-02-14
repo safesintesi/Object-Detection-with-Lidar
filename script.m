@@ -117,6 +117,7 @@ colormap(player.Axes, colorLabels)
     tic
     boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 0.5, -0.5);
     toc
+    tic
     boxes2 = getBoundingBoxes2(ptCloudSegmented, 20);
     toc
     %% VISUALIZZAZIONE
