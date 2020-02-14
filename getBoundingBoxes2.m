@@ -26,11 +26,11 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
           end
        end
     end
-    numClusters=20;
+%     numClusters=20;
     %applico kmeans all'oggetto appena creato e mi restituisce una colonna
     %con i labels per i cluster
-    [labels] = kmeans(data,numClusters);
-    
+    [labels,~,~,numClusters] = best_kmeans(data);
+    numClusters
     %stessa procedura dell'altra funzione per il calcolo dei massimi e
     %minimi delle tre componenti con il return dei cluster
     %trovati
