@@ -3,7 +3,7 @@ close all;
 %% DATA LOADING
 dataMainDir = './';
 configID = '1';
-fullFolderPath = fullfile(dataMainDir,sprintf('./Config%s',configID));
+fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
@@ -49,9 +49,9 @@ sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
 
 %% PLAYER
 %room
-% xlimits = [-5 3];
-% ylimits = [-4 5];
-% zlimits = [-2 2];
+xlimits = [-5 3];
+ylimits = [-4 5];
+zlimits = [-2 2];
 
 %object
 % xlimits = [-0.5 0];
@@ -59,9 +59,9 @@ sensorLocation  = [0, 0, 0]; % Sensor is at the center of the coordinate system
 % zlimits = [-0.2 0.2];
 
 %room no walls
-xlimits = [-4.3 1.8];
-ylimits = [-2.5 3.3];
-zlimits = [-2 2];
+% xlimits = [-4.3 1.8];
+% ylimits = [-2.5 3.3];
+% zlimits = [-2 2];
 
 
 player = pcplayer(xlimits,ylimits,zlimits);
@@ -88,7 +88,7 @@ colormap(player.Axes, colorLabels)
     points = struct();
     
     % TODO: change radius
-    radius          = 2.3; % meters
+    radius          = 2.35; % meters
     nearbyPoints = findNeighborsInRadius(ptCloudTemp, ...
         sensorLocation, radius);                                            %cerco i punti vicini
     ptCloudObj = select(ptCloudTemp, nearbyPoints , 'OutputSize', 'full');  %restringo area ricerca per qualsiasi cosa
@@ -103,8 +103,8 @@ colormap(player.Axes, colorLabels)
     points.GroundPoints = segmentGroundFromLidarData(ptCloudObj, 'ElevationAngleDelta', elevationDelta);
 
     %% POINTS GROUPING - OBSTACLES
-    nonEgoGroundPoints = ~points.EgoPoints & ~points.GroundPoints;
-%     nonEgoGroundPoints = ~points.GroundPoints;
+   nonEgoGroundPoints = ~points.EgoPoints & ~points.GroundPoints;
+ %    nonEgoGroundPoints = ~points.GroundPoints;
     ptCloudSegmented = select(ptCloudObj, nonEgoGroundPoints, 'OutputSize', 'full');
 
     
@@ -115,11 +115,54 @@ colormap(player.Axes, colorLabels)
 
     %% CLASS TRY
     tic
-    boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 0.5, -0.5);
+    boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 1.5, -1.5);
     toc
     tic
-    boxes2 = getBoundingBoxes2(ptCloudSegmented, 20);
+    boxes2 = getBoundingBoxes2(ptCloudSegmented, 5);
     toc
+    
+    %% MSE
+%      manualbox1=[-0.3517; 0.7899; -0.1160; -0.1796; 0.9215; -0.0151];
+%      manualbox2=[-0.6000; -2.3956; -0.1269; -0.4465; -2.2432; -0.0413];
+%      manualbox3=[-0.2046; -2.3018; -0.1211; -0.1295; -2.2205; 0.0397];
+     manualbox1=[-0.3517; 0.7899; -0.1383; -0.1796; 0.9215; -0.0151];
+     manualbox2=[-0.6000; -2.3956; -0.1832; -0.4465; -2.2432; -0.0413];
+     manualbox3=[-0.2046; -2.3018; -0.1832; -0.1295; -2.2205; 0.0397];
+     [s1,s2]=size(boxes);
+     [b1,b2]=size(boxes2);
+     
+     mse=[10 10 10;10 10 10];
+     for i=1:s2
+        err1=immse(boxes(:,i),manualbox1);
+        err2=immse(boxes(:,i),manualbox2);
+        err3=immse(boxes(:,i),manualbox3);
+        if err1<mse(1,1)
+           mse(1,1)=err1;
+        end
+        if err2<mse(1,2)
+           mse(1,2)=err2;
+        end
+        if err3<mse(1,3)
+           mse(1,3)=err3;
+        end        
+     end
+     for i=1:b2
+        err1=immse(boxes2(:,i),manualbox1);
+        err2=immse(boxes2(:,i),manualbox2);
+        err3=immse(boxes2(:,i),manualbox3);
+        if err1<mse(2,1)
+           mse(2,1)=err1;
+        end
+        if err2<mse(2,2)
+           mse(2,2)=err2;
+        end
+        if err3<mse(2,3)
+           mse(2,3)=err3;
+        end        
+     end 
+    mse
+    
+    
     %% VISUALIZZAZIONE
     % Visualize the segmented obstacles
 %     [a,b,c]=size(ptCloudObj.Location);
@@ -143,16 +186,19 @@ colormap(player.Axes, colorLabels)
     [a,b]=size(x);
     for i=1:a
         for j=1:b
-            if y(i,j)>3.3 || y(i,j)<-2.5 || x(i,j)<-4.3 || x(i,j)>1.8
+             if y(i,j)>3.3 || y(i,j)<-2.5 || x(i,j)<-4.3 || x(i,j)>1.8
+ %          if y(i,j)>5 || y(i,j)<-4 || x(i,j)<-5 || x(i,j)>3
                 x(i,j)=nan;
                 y(i,j)=nan;
                 z(i,j)=nan;
             end
         end
     end
-%     plot3(x,y,z,'.','Markersize',1,'Color','[0 0.4470 0.7410]');
-%     [s1,s2]=size(boxes);
-%     hold on;
+    plot3(x,y,z,'.','Markersize',3,'Color','[0 0.4470 0.7410]');
+    xlabel('X (m)');
+    ylabel('Y (m)');
+    zlabel('Z (m)');
+    hold on;
 
     %plotting boxes
 %     for k=1:s2
@@ -166,17 +212,17 @@ colormap(player.Axes, colorLabels)
 % 
 %     end
 
-%     [b1,b2]=size(boxes2);
-%     for k=1:b2
-%         X = [boxes2(1,k),boxes2(4,k),boxes2(4,k),boxes2(1,k),boxes2(1,k)];
-%         Y = [boxes2(2,k),boxes2(2,k),boxes2(5,k),boxes2(5,k),boxes2(2,k)];
-%         Z1 = [boxes2(3,k),boxes2(3,k),boxes2(3,k),boxes2(3,k),boxes2(3,k)];
-%         Z2 = [boxes2(6,k),boxes2(6,k),boxes2(6,k),boxes2(6,k),boxes2(6,k)];
-%         plot3(X,Y,Z1,'Color','[0.6350 0.0780 0.1840]');
-%         plot3(X,Y,Z2,'Color','[0.6350 0.0780 0.1840]');
-%         plot3([X(1:4);X(1:4)],[Y(1:4);Y(1:4)],[Z1(1);Z2(1)],'Color','[0.6350 0.0780 0.1840]');
-% 
-%     end
+    %plotting boxes k-means
+    for k=1:b2
+        X = [boxes2(1,k),boxes2(4,k),boxes2(4,k),boxes2(1,k),boxes2(1,k)];
+        Y = [boxes2(2,k),boxes2(2,k),boxes2(5,k),boxes2(5,k),boxes2(2,k)];
+        Z1 = [boxes2(3,k),boxes2(3,k),boxes2(3,k),boxes2(3,k),boxes2(3,k)];
+        Z2 = [boxes2(6,k),boxes2(6,k),boxes2(6,k),boxes2(6,k),boxes2(6,k)];
+        plot3(X,Y,Z1,'Color','[0.6350 0.0780 0.1840]');
+        plot3(X,Y,Z2,'Color','[0.6350 0.0780 0.1840]');
+        plot3([X(1:4);X(1:4)],[Y(1:4);Y(1:4)],[Z1(1);Z2(1)],'Color','[0.6350 0.0780 0.1840]');
+
+    end
 
 %     pause(0.1);
 % end

@@ -30,7 +30,6 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
     %applico kmeans all'oggetto appena creato e mi restituisce una colonna
     %con i labels per i cluster
     [labels,~,~,numClusters] = best_kmeans(data);
-    numClusters
     %stessa procedura dell'altra funzione per il calcolo dei massimi e
     %minimi delle tre componenti con il return dei cluster
     %trovati
@@ -70,7 +69,7 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
 %             y = (yMin + yMax)/2;
 %             z = (zMin + zMax)/2;
             bboxes2(:,i) = [xMin yMin zMin xMax yMax zMax]';
-            isValidCluster(i) = l < 20; % max length of 20 meters
+            isValidCluster(i) = l < 20; % max length in metri
         end
     end
     bboxes2 = bboxes2(:,isValidCluster);

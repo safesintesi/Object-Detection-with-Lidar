@@ -12,23 +12,26 @@ function [IDX,C,SUMD,K]=best_kmeans(X)
 % After find the best K clusters, IDX,C,SUMD are determined using kmeans
 % function in matlab.
 % dim = size(X);                    % quello originale ma arriva a fare un cluster per ogni punto
-dim=15;                             % numero massimo di cluster (fisso)
+dim=20;                             % numero massimo di cluster (fisso)
 % default number of test to get minimun under differnent random centriods
-% test_num=10;                      % numero di test per ogni numero di cluster 
+ test_num=5;                      % numero di test per ogni numero di cluster 
 distortion=zeros(dim(1),1);
 for k_temp=1:dim(1)
     [~,~,sumd]=kmeans(X,k_temp,'emptyaction','drop');
     destortion_temp=sum(sumd);
     % try differnet tests to find minimun disortion under k_temp clusters
-%     for test_count=2:test_num
-%         [~,~,sumd]=kmeans(X,k_temp,'emptyaction','drop');
-%         destortion_temp=min(destortion_temp,sum(sumd));
-%     end
+    for test_count=2:test_num
+        [~,~,sumd]=kmeans(X,k_temp,'emptyaction','drop');
+        destortion_temp=min(destortion_temp,sum(sumd));
+    end
     distortion(k_temp,1)=destortion_temp;
 end
 variance=distortion(1:end-1)-distortion(2:end);
 distortion_percent=cumsum(variance)/(distortion(1)-distortion(end));
+
 plot(distortion_percent,'b*--');
-[r,~]=find(distortion_percent>0.9);
+xlabel('numClusters');
+ylabel('Varianza');
+[r,~]=find(distortion_percent>0.97);
 K=r(1,1)+1;
 [IDX,C,SUMD]=kmeans(X,K);

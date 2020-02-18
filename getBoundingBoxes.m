@@ -1,10 +1,10 @@
 function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDistance,minZDistance)
-    % This method fits bounding boxes on each cluster with some basic
-    % rules.
-    % Cluster must have atleast minDetsPerCluster points.
-    % Its mean z must be between maxZDistance and minZDistance.
-    % length, width and height are calculated using min and max from each
-    % dimension.
+    % Questo metodo crea "bounding boxes" per ogni cluster con delle
+    % semplici regole
+    % Cluster devono avere almeno minDetsPerCluster punti.
+    % La media di z deve essere tra maxZDistance e minZDistance.
+    % length, width e height sono calcolate usando min e max da ogni
+    % dimensione
     [labels,numClusters] = pcsegdist(ptCloud,minDistance);
     pointData = ptCloud.Location;
     bboxes = nan(6,numClusters,'like',pointData);
@@ -48,7 +48,7 @@ function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDis
 %             y = (yMin + yMax)/2;
 %             z = (zMin + zMax)/2;
             bboxes(:,i) = [xMin yMin zMin xMax yMax zMax]';
-            isValidCluster(i) = l < 20; % max length of 20 meters
+            isValidCluster(i) = l < 20; % max length in metri
         end
     end
     bboxes = bboxes(:,isValidCluster);
