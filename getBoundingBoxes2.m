@@ -1,4 +1,4 @@
-function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
+function bboxes2 = getBoundingBoxes2(ptCloud)
     %estraggo la matrice Location dall'oggetto in input
     prova=ptCloud.Location;
     [p1,p2,~]=size(prova);
@@ -55,7 +55,7 @@ function bboxes2 = getBoundingBoxes2(ptCloud,minDetsPerCluster)
                    thisZ(x)=nan;
                end
         end
-        if t > minDetsPerCluster
+        if t > 1
             xMin = min(thisX);
             xMax = max(thisX);
             yMin = min(thisY);

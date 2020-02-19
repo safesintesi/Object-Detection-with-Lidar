@@ -123,7 +123,7 @@ colormap(player.Axes, colorLabels)
     disp(newline);
     disp("Algoritmo basato su k-means (possibili warning per lentezza)")
     tic
-    boxes2 = getBoundingBoxes2(ptCloudSegmented, 5);
+    boxes2 = getBoundingBoxes2(ptCloudSegmented);
     toc
     [b1,b2]=size(boxes2);
     disp(['Numero clusters: ' num2str(b2)]);
