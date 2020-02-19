@@ -125,14 +125,18 @@ colormap(player.Axes, colorLabels)
 %      manualbox1=[-0.3517; 0.7899; -0.1160; -0.1796; 0.9215; -0.0151];
 %      manualbox2=[-0.6000; -2.3956; -0.1269; -0.4465; -2.2432; -0.0413];
 %      manualbox3=[-0.2046; -2.3018; -0.1211; -0.1295; -2.2205; 0.0397];
-     manualbox1=[-0.3517; 0.7899; -0.1383; -0.1796; 0.9215; -0.0151];
-     manualbox2=[-0.6000; -2.3956; -0.1832; -0.4465; -2.2432; -0.0413];
-     manualbox3=[-0.2046; -2.3018; -0.1832; -0.1295; -2.2205; 0.0397];
+     manualbox11=[-0.3517; 0.7899; -0.1383; -0.1796; 0.9215; -0.0151];
+     manualbox22=[-0.6000; -2.3956; -0.1832; -0.4465; -2.2432; -0.0413];
+     manualbox33=[-0.2046; -2.3018; -0.1832; -0.1295; -2.2205; 0.0397];
+     manualbox1=single(manualbox11);
+     manualbox2=single(manualbox22);
+     manualbox3=single(manualbox33);
      [s1,s2]=size(boxes);
      [b1,b2]=size(boxes2);
      
      mse=[10 10 10;10 10 10];
      for i=1:s2
+      
         err1=immse(boxes(:,i),manualbox1);
         err2=immse(boxes(:,i),manualbox2);
         err3=immse(boxes(:,i),manualbox3);
@@ -147,9 +151,9 @@ colormap(player.Axes, colorLabels)
         end        
      end
      for i=1:b2
-        err1=immse(boxes2(:,i),manualbox1);
-        err2=immse(boxes2(:,i),manualbox2);
-        err3=immse(boxes2(:,i),manualbox3);
+        err1=immse(boxes2(:,i),manualbox11);
+        err2=immse(boxes2(:,i),manualbox22);
+        err3=immse(boxes2(:,i),manualbox33);
         if err1<mse(2,1)
            mse(2,1)=err1;
         end
