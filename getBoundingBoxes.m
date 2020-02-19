@@ -6,6 +6,7 @@ function bboxes = getBoundingBoxes(ptCloud,minDistance,minDetsPerCluster,maxZDis
     % length, width e height sono calcolate usando min e max da ogni
     % dimensione
     [labels,numClusters] = pcsegdist(ptCloud,minDistance);
+    
     pointData = ptCloud.Location;
     bboxes = nan(6,numClusters,'like',pointData);
     isValidCluster = false(1,numClusters);

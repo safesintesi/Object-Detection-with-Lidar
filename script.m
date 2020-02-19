@@ -3,7 +3,7 @@ close all;
 %% DATA LOADING
 dataMainDir = './';
 configID = '1';
-fullFolderPath = fullfile(dataMainDir,sprintf('/../Config%s',configID));
+fullFolderPath = fullfile(dataMainDir,sprintf('./Config%s',configID));
 fileList = dir(fullFolderPath);
 nameList = {fileList.name};
 nameList = nameList(3:end);
@@ -114,12 +114,20 @@ colormap(player.Axes, colorLabels)
 
 
     %% CLASS TRY
+    disp("Algoritmo basato su pcsegdist");
     tic
     boxes = getBoundingBoxes(ptCloudSegmented, 0.1, 20, 1.5, -1.5);
     toc
+    [s1,s2]=size(boxes);
+    disp(['Numero clusters: ' num2str(s2)]);
+    disp(newline);
+    disp("Algoritmo basato su k-means (possibili warning per lentezza)")
     tic
     boxes2 = getBoundingBoxes2(ptCloudSegmented, 5);
     toc
+    [b1,b2]=size(boxes2);
+    disp(['Numero clusters: ' num2str(b2)]);
+    disp(newline);
     
     %% MSE
 %      manualbox1=[-0.3517; 0.7899; -0.1160; -0.1796; 0.9215; -0.0151];
@@ -131,8 +139,8 @@ colormap(player.Axes, colorLabels)
      manualbox1=single(manualbox11);
      manualbox2=single(manualbox22);
      manualbox3=single(manualbox33);
-     [s1,s2]=size(boxes);
-     [b1,b2]=size(boxes2);
+     
+     
      
      mse=[10 10 10;10 10 10];
      for i=1:s2
@@ -164,7 +172,8 @@ colormap(player.Axes, colorLabels)
            mse(2,3)=err3;
         end        
      end 
-    mse
+    disp('Mse: ');
+    disp(mse);
     
     
     %% VISUALIZZAZIONE
@@ -198,24 +207,35 @@ colormap(player.Axes, colorLabels)
             end
         end
     end
+    
+    %preparazione figure
+    figure('name', 'Risultati pcsegdist', 'NumberTitle', 'off');
     plot3(x,y,z,'.','Markersize',3,'Color','[0 0.4470 0.7410]');
     xlabel('X (m)');
     ylabel('Y (m)');
     zlabel('Z (m)');
     hold on;
 
-    %plotting boxes
-%     for k=1:s2
-%         X = [boxes(1,k),boxes(4,k),boxes(4,k),boxes(1,k),boxes(1,k)];
-%         Y = [boxes(2,k),boxes(2,k),boxes(5,k),boxes(5,k),boxes(2,k)];
-%         Z1 = [boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k)];
-%         Z2 = [boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k)];
-%         plot3(X,Y,Z1,'Color','[0.6350 0.0780 0.1840]');
-%         plot3(X,Y,Z2,'Color','[0.6350 0.0780 0.1840]');
-%         plot3([X(1:4);X(1:4)],[Y(1:4);Y(1:4)],[Z1(1);Z2(1)],'Color','[0.6350 0.0780 0.1840]');
-% 
-%     end
+    %plotting boxes pcsegdist
+    for k=1:s2
+        X = [boxes(1,k),boxes(4,k),boxes(4,k),boxes(1,k),boxes(1,k)];
+        Y = [boxes(2,k),boxes(2,k),boxes(5,k),boxes(5,k),boxes(2,k)];
+        Z1 = [boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k),boxes(3,k)];
+        Z2 = [boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k),boxes(6,k)];
+        plot3(X,Y,Z1,'Color','[0.6350 0.0780 0.1840]');
+        plot3(X,Y,Z2,'Color','[0.6350 0.0780 0.1840]');
+        plot3([X(1:4);X(1:4)],[Y(1:4);Y(1:4)],[Z1(1);Z2(1)],'Color','[0.6350 0.0780 0.1840]');
 
+    end
+
+    %preparazione figure
+    figure('name', 'Risultati k-means', 'NumberTitle', 'off');
+    plot3(x,y,z,'.','Markersize',3,'Color','[0 0.4470 0.7410]');
+    xlabel('X (m)');
+    ylabel('Y (m)');
+    zlabel('Z (m)');
+    hold on;
+    
     %plotting boxes k-means
     for k=1:b2
         X = [boxes2(1,k),boxes2(4,k),boxes2(4,k),boxes2(1,k),boxes2(1,k)];

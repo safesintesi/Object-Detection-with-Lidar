@@ -29,6 +29,7 @@ end
 variance=distortion(1:end-1)-distortion(2:end);
 distortion_percent=cumsum(variance)/(distortion(1)-distortion(end));
 
+figure('name', 'varianza su k cluster di k-means', 'NumberTitle', 'off');
 plot(distortion_percent,'b*--');
 xlabel('numClusters');
 ylabel('Varianza');
